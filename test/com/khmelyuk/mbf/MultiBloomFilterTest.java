@@ -43,4 +43,18 @@ public class MultiBloomFilterTest {
         mbf.resetHead();
         assertFalse(mbf.mightContain("hello"));
     }
+
+    @Test
+    public void multipleHeadResetsIsImportant() throws Exception {
+        mbf.put("hello");
+        mbf.put("hello");
+        mbf.resetHead();
+        mbf.resetHead();
+        mbf.put("hello");
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+    }
 }

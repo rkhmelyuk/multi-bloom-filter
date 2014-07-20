@@ -11,13 +11,7 @@ package com.khmelyuk.mbf;
 // TODO - concurrency support...
 public class MultiBloomFilter<T> {
 
-    // TODO - structure that represents a CircularList
-
-    private final BloomFilter<T>[] bfs;
-    private final HashFunction<T> hashFn;
-    private final int capacity;
-    private final int hashes;
-    private int head;
+    private final CircularList<BloomFilter<T>> bfs;
 
     /** Instantiates a component with {@link HashFunctions#getDefault() default hash function}. */
     public MultiBloomFilter(int size, int capacity, int hashes) {
@@ -27,14 +21,11 @@ public class MultiBloomFilter<T> {
     /** Instantiates a component with specified hash function. */
     @SuppressWarnings("unchecked")
     public MultiBloomFilter(int filters, int capacity, int hashes, HashFunction<T> hashFn) {
-        this.head = 0;
-        this.hashes = hashes;
-        this.hashFn = hashFn;
-        this.capacity = capacity;
-        this.bfs = new BloomFilter[filters];
-        for (int i = 0; i < filters; i++) {
-            this.bfs[i] = BloomFilter.create(capacity, hashes, HashFunctions.withSeed(hashFn, i));
-        }
+        this.bfs = new CircularList<>(
+                new BloomFilter[filters],
+                (index) -> BloomFilter.create(
+                        capacity, hashes,
+                        HashFunctions.withSeed(hashFn, index)));
     }
 
     /** Add value to the next BF */
@@ -52,32 +43,16 @@ public class MultiBloomFilter<T> {
 
     /** Finds BF without specified value, or null if such not found */
     private BloomFilter<T> findBFWithoutValue(T value) {
-        // use some kind of binary search here
-        int head = this.head;
-        int tail = (head == 0 ? this.bfs.length - 1 : head - 1);
-
-        // TODO - use binary search?
-        for (int i = head; i < this.bfs.length; i++) {
-            if (!bfs[i].mightContain(value)) {
-                return bfs[i];
-            }
-        }
-        for (int i = tail; i < head; i++) {
-            if (!bfs[i].mightContain(value)) {
-                return bfs[i];
-            }
-        }
-        return null;
+        return bfs.find((bf) -> !bf.mightContain(value));
     }
 
     void resetHead() {
-        int head = this.head;
+        bfs.resetHead();
+    }
 
-        BloomFilter<T> newBF = BloomFilter.create(capacity, hashes, HashFunctions.withSeed(hashFn, head));
-        int newHead = (head == this.bfs.length - 1 ? 0 : head + 1);
-
-        bfs[head] = newBF;
-        this.head = newHead;
+    @Override
+    public String toString() {
+        return "MBF[" + bfs + "]";
     }
 
 }
