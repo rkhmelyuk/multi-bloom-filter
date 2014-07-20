@@ -43,7 +43,7 @@ public class MultiBloomFilter<T> {
 
     /** Finds BF without specified value, or null if such not found */
     private BloomFilter<T> findBFWithoutValue(T value) {
-        return bfs.find((bf) -> !bf.mightContain(value));
+        return bfs.search((bf) -> !bf.mightContain(value));
     }
 
     void resetHead() {

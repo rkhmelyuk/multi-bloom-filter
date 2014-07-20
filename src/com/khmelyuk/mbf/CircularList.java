@@ -28,15 +28,15 @@ public class CircularList<T> {
     }
 
     /** Finds the element that satisfies the test condition */
-    public T find(Function<T, Boolean> testFn) {
-        // TODO - binary search?
+    public T search(Function<T, Boolean> testFn) {
         for (int i = head; i < elems.length; i++) {
             if (testFn.apply(elems[i])) {
                 return elems[i];
             }
         }
-        if (tail() < head) {
-            for (int i = 0; i <= tail(); i++) {
+        int tail = tail();
+        if (tail < head) {
+            for (int i = 0; i <= tail; i++) {
                 if (testFn.apply(elems[i])) {
                     return elems[i];
                 }
