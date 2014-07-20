@@ -1,4 +1,4 @@
-package mbf;
+package com.khmelyuk.mbf;
 
 /**
  * Component that organizes a work of multiple bloom filters.

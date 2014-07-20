@@ -1,4 +1,4 @@
-package mbf;
+package com.khmelyuk.mbf;
 
 /** Contains the most widely used type of hash functions. */
 public class HashFunctions {

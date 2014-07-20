@@ -1,4 +1,4 @@
-package mbf;
+package com.khmelyuk.mbf;
 
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicLong;

@@ -1,4 +1,4 @@
-package mbf;
+package com.khmelyuk.mbf;
 
 /**
  * Represents the function that calculates a hash for input value.

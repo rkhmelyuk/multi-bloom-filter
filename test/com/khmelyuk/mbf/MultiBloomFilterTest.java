@@ -1,4 +1,4 @@
-package mbf;
+package com.khmelyuk.mbf;
 
 import org.junit.Test;
 
