@@ -1,0 +1,13 @@
+
+ * binary search for non-set BF
+ * auto-growing the BF sizes on reset based on statistic (number of updates vs number of 1s)
+    * need to find a way to calculate the false positives
+    
+ * concurrency support for MBF
+ * CircularList
+ * MBF should reset after some period (like every 10 seconds)
+ * MBF builder to build the MBF to support some conditions, like:
+    - only elements that were added 200 or more times in last 1 min
+    - only elements that were added 2K times in last 10 seconds, assuming that more than 10K elements are added every 1 second
+    - enable/disable auto-scaling
+    - etc.
