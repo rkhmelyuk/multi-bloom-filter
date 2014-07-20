@@ -51,6 +51,8 @@ public class CircularList<T> {
 
     private int tail() { return head == 0 ? elems.length - 1 : head - 1; }
 
+    public int size() { return elems.length; }
+
     @Override
     public String toString() {
         StringJoiner joiner = new StringJoiner(", ");

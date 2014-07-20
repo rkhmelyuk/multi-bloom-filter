@@ -4,7 +4,6 @@
     * is it possible/useful to have a method mightContain(value, probability)
     
  * concurrency support for MBF
- * MBF should reset after some period (like every 10 seconds)
  * MBF builder to build the MBF to support some conditions, like:
     - only elements that were added 200 or more times in last 1 min
     - only elements that were added 2K times in last 10 seconds, assuming that more than 10K elements are added every 1 second

@@ -2,12 +2,14 @@ package com.khmelyuk.mbf;
 
 import org.junit.Test;
 
+import java.time.Duration;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MultiBloomFilterTest {
 
-    MultiBloomFilter<String> mbf = new MultiBloomFilter<>(3, 10, 3);
+    MultiBloomFilter<String> mbf = new MultiBloomFilter<>(3, 10, Duration.ofMillis(1000), 3);
 
     @Test
     public void putSingle() throws Exception {
@@ -55,6 +57,39 @@ public class MultiBloomFilterTest {
         mbf.put("hello");
         assertFalse(mbf.mightContain("hello"));
         mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+    }
+
+    @Test
+    public void resetAfterTime() throws Exception {
+        mbf = new MultiBloomFilter<>(3, 10, Duration.ofMillis(50), 3);
+        mbf.put("hello");
+        mbf.put("hello");
+        mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+        Thread.sleep(60);
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+
+        Thread.sleep(175);
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertFalse(mbf.mightContain("hello"));
+        mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+    }
+
+    @Test
+    public void resetAfterDisabled() throws Exception {
+        mbf = new MultiBloomFilter<>(3, 10, Duration.ofMillis(-1), 3);
+        mbf.put("hello");
+        mbf.put("hello");
+        mbf.put("hello");
+        assertTrue(mbf.mightContain("hello"));
+        Thread.sleep(50);
         assertTrue(mbf.mightContain("hello"));
     }
 }

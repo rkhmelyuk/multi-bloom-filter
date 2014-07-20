@@ -37,4 +37,10 @@ public class CircularListTest {
         assertThat(list.getHead(), is("1"));
         assertThat(list.getTail(), is("0"));
     }
+
+    @Test
+    public void size() throws Exception {
+        assertThat(new CircularList<>(new String[5], String::valueOf).size(), is(5));
+        assertThat(new CircularList<>(new String[15], String::valueOf).size(), is(15));
+    }
 }
