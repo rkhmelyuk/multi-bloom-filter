@@ -10,4 +10,13 @@ public class HashFunctions {
         return Object::hashCode;
     }
 
+    public static <T> HashFunction<T> murmur128() {
+        throw new UnsupportedOperationException("implement me");
+    }
+
+    /** Returns the hash function that adds a seed value for the input hash function. */
+    public static <T> HashFunction<T> withSeed(HashFunction<T> hashFn, int seed) {
+        return (value) -> hashFn.apply(value) + seed << 2;
+    }
+
 }
