@@ -3,7 +3,16 @@ package com.khmelyuk.mbf;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** Basic bloom filter implementation. */
+/**
+ * Basic bloom filter implementation.
+ * Primary attributes are:
+ * - capacity: size of the bloom filter
+ * - hashes: how many time the hash functions would be run over the input value
+ * - hash function: the hash function to run for the in put value
+ *
+ * The hash function would be run n times for some input value, but would have different seed value,
+ * so results would be different. See {@link com.khmelyuk.mbf.HashFunctions#withSeed(HashFunction, int)} for more info on this.
+ */
 public class BloomFilter<T> {
 
     public static <T> BloomFilter<T> create(int capacity, int hashes) {
@@ -38,6 +47,7 @@ public class BloomFilter<T> {
         this.hashes = hashes;
     }
 
+    /** Put value into this bloom filter */
     public void put(T value) {
         for (int i = 0; i < hashes; i++) {
             long hash = HashFunctions.withSeed(this.hashFn, i).apply(value);
@@ -46,6 +56,7 @@ public class BloomFilter<T> {
         updates.incrementAndGet();
     }
 
+    /** Check if the bloom filter might contain the value */
     public boolean mightContain(T value) {
         for (int i = 0; i < hashes; i++) {
             long hash = HashFunctions.withSeed(this.hashFn, i).apply(value);
