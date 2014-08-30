@@ -18,8 +18,8 @@ public class MultiBloomFilter<T> {
     private long resetTime;
 
     /** Instantiates a component with {@link HashFunctions#getDefault() default hash function}. */
-    public MultiBloomFilter(int size, int capacity, Duration resetAfter, int hashes) {
-        this(size, capacity, resetAfter, hashes, HashFunctions.getDefault());
+    public MultiBloomFilter(int filters, int capacity, Duration resetAfter, int hashes) {
+        this(filters, capacity, resetAfter, hashes, HashFunctions.getDefault());
     }
 
     /** Instantiates a component with specified hash function. */
