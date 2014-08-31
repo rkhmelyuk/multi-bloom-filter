@@ -9,6 +9,4 @@
     * need to find a way to calculate the false positives
     * is it possible/useful to have a method mightContain(value, probability)
     
- * concurrency support for MBF
-    
  * binary search for non-set BF

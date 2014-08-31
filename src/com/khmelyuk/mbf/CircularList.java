@@ -1,13 +1,20 @@
 package com.khmelyuk.mbf;
 
 import java.util.StringJoiner;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
-/** Represents a looped list, where the next value after a tail element is a head element. */
+/**
+ * Represents a looped list, where the next value after a tail element is a head element.
+ *
+ * Thread safe.
+ */
 public class CircularList<T> {
 
     private final T[] elems;
     private final Function<Integer, T> creator;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private int head;
 
@@ -22,32 +29,48 @@ public class CircularList<T> {
 
     /** Updates the head with new element, and moves head forward. */
     public void resetHead() {
-        // TODO - lock multiple updates..
-        elems[head] = this.creator.apply(head);
-        head = head != elems.length - 1 ? head + 1 : 0;
+        try {
+            lock.writeLock().lock();
+            elems[head] = this.creator.apply(head);
+            head = head != elems.length - 1 ? head + 1 : 0;
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /** Finds the element that satisfies the test condition */
     public T search(Function<T, Boolean> testFn) {
-        for (int i = head; i < elems.length; i++) {
-            if (testFn.apply(elems[i])) {
-                return elems[i];
-            }
-        }
-        int tail = tail();
-        if (tail < head) {
-            for (int i = 0; i <= tail; i++) {
+        try {
+            lock.readLock().lock();
+            for (int i = head; i < elems.length; i++) {
                 if (testFn.apply(elems[i])) {
                     return elems[i];
                 }
             }
+            int tail = tail();
+            if (tail < head) {
+                for (int i = 0; i <= tail; i++) {
+                    if (testFn.apply(elems[i])) {
+                        return elems[i];
+                    }
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
         }
         return null;
     }
 
     public T getHead() { return elems[head];}
 
-    public T getTail() { return elems[tail()];}
+    public T getTail() {
+        try {
+            lock.readLock().lock();
+            return elems[tail()];
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
     private int tail() { return head == 0 ? elems.length - 1 : head - 1; }
 

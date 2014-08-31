@@ -2,6 +2,8 @@ package com.khmelyuk.mbf;
 
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Basic bloom filter implementation.
@@ -12,6 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * The hash function would be run n times for some input value, but would have different seed value,
  * so results would be different. See {@link com.khmelyuk.mbf.HashFunctions#withSeed(HashFunction, int)} for more info on this.
+ *
+ * Thread safe.
  */
 public class BloomFilter<T> {
 
@@ -39,6 +43,7 @@ public class BloomFilter<T> {
     private final HashFunction<T> hashFn;
     private final AtomicLong updates = new AtomicLong(0);
     private final int hashes;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private BloomFilter(int capacity, int hashes, HashFunction<T> hashFn) {
         this.set = new BitSet(capacity);
@@ -51,7 +56,7 @@ public class BloomFilter<T> {
     public void put(T value) {
         for (int i = 0; i < hashes; i++) {
             long hash = HashFunctions.withSeed(this.hashFn, i).apply(value);
-            set.set((int) hash);
+            put((int) hash);
         }
         updates.incrementAndGet();
     }
@@ -60,11 +65,29 @@ public class BloomFilter<T> {
     public boolean mightContain(T value) {
         for (int i = 0; i < hashes; i++) {
             long hash = HashFunctions.withSeed(this.hashFn, i).apply(value);
-            if (!set.get((int) hash)) {
+            if (!contains((int) hash)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private void put(int hash) {
+        try {
+            lock.writeLock().lock();
+            set.set(hash);
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    private boolean contains(int hash) {
+        try {
+            lock.readLock().lock();
+            return set.get(hash);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public String toString() {

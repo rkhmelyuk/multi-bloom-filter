@@ -6,11 +6,12 @@ import java.time.Duration;
  * Component that organizes a work of multiple bloom filters.
  * It uses the same capacity for all the bloom filters, but different seeds for hash functions.
  *
- * MultiBloomFilter's {@code size} is a number of enclose bloom filters.
+ * MultiBloomFilter's {@code size} is a number of enclosed bloom filters.
  *
  * Bloom filters are reset one by one after some period of time.
+ *
+ * Thread safe.
  */
-// TODO - concurrency support...
 public class MultiBloomFilter<T> {
 
     private final CircularList<BloomFilter<T>> bfs;
@@ -55,7 +56,7 @@ public class MultiBloomFilter<T> {
     }
 
     /** Resets the head of MBF if specified period of time elapsed */
-    private void resetIfNeed() {
+    private synchronized void resetIfNeed() {
         if (resetAfter <= 0) {
             // no need to reset if not enabled
             return;
