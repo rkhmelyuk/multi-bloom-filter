@@ -22,6 +22,7 @@ public class MultiBloomFilter<T> {
     private final CircularList<BloomFilter<T>> bfs;
     private final long resetAfter;
     private long resetTime;
+    private boolean autoscaling = true;
 
     /** Instantiates a component with {@link HashFunctions#getDefault() default hash function}. */
     public MultiBloomFilter(int filters, int capacity, Duration resetAfter, int hashes) {
@@ -35,7 +36,7 @@ public class MultiBloomFilter<T> {
                 new BloomFilter[filters],
                 (index, bf) -> {
                     int newCapacity = capacity;
-                    if (bf != null) {
+                    if (bf != null && autoscaling) {
                         long updates = bf.getUpdates();
                         int oldCapacity = bf.capacity();
                         if (updates * hashes * 0.8 > oldCapacity) {
@@ -50,6 +51,14 @@ public class MultiBloomFilter<T> {
                 });
         this.resetAfter = resetAfter.toMillis();
         this.resetTime = System.currentTimeMillis();
+    }
+
+    public boolean isAutoscaling() {
+        return autoscaling;
+    }
+
+    public void setAutoscaling(boolean autoscaling) {
+        this.autoscaling = autoscaling;
     }
 
     /** Add value to the next BF */
