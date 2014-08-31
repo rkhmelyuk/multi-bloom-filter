@@ -90,6 +90,14 @@ public class BloomFilter<T> {
         }
     }
 
+    public long getUpdates() {
+        return updates.get();
+    }
+
+    public int capacity() {
+        return set.size();
+    }
+
     public String toString() {
         return set.toString();
     }

@@ -5,8 +5,4 @@
     - enable/disable auto-scaling
     - etc.
 
- * auto-growing the BF sizes on reset based on statistic (number of updates vs number of 1s)
-    * need to find a way to calculate the false positives
-    * is it possible/useful to have a method mightContain(value, probability)
-    
- * binary search for non-set BF
+ * is it possible/useful to have a method mightContain(value, probability)

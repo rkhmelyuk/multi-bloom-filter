@@ -3,6 +3,7 @@ package com.khmelyuk.mbf;
 import java.util.StringJoiner;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -13,17 +14,17 @@ import java.util.function.Function;
 public class CircularList<T> {
 
     private final T[] elems;
-    private final Function<Integer, T> creator;
+    private final BiFunction<Integer, T, T> creator;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private int head;
 
-    public CircularList(T[] elems, Function<Integer, T> creator) {
+    public CircularList(T[] elems, BiFunction<Integer, T, T> creator) {
         this.elems = elems;
         this.creator = creator;
 
         for (int i = 0; i < elems.length; i++) {
-            this.elems[i] = creator.apply(i);
+            this.elems[i] = creator.apply(i, null);
         }
     }
 
@@ -31,7 +32,7 @@ public class CircularList<T> {
     public void resetHead() {
         try {
             lock.writeLock().lock();
-            elems[head] = this.creator.apply(head);
+            elems[head] = this.creator.apply(head, elems[head]);
             head = head != elems.length - 1 ? head + 1 : 0;
         } finally {
             lock.writeLock().unlock();

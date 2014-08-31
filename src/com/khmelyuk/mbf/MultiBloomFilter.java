@@ -1,5 +1,8 @@
 package com.khmelyuk.mbf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 
 /**
@@ -13,6 +16,8 @@ import java.time.Duration;
  * Thread safe.
  */
 public class MultiBloomFilter<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MultiBloomFilter.class);
 
     private final CircularList<BloomFilter<T>> bfs;
     private final long resetAfter;
@@ -28,9 +33,21 @@ public class MultiBloomFilter<T> {
     public MultiBloomFilter(int filters, int capacity, Duration resetAfter, int hashes, HashFunction<T> hashFn) {
         this.bfs = new CircularList<>(
                 new BloomFilter[filters],
-                (index) -> BloomFilter.create(
-                        capacity, hashes,
-                        HashFunctions.withSeed(hashFn, index)));
+                (index, bf) -> {
+                    int newCapacity = capacity;
+                    if (bf != null) {
+                        long updates = bf.getUpdates();
+                        int oldCapacity = bf.capacity();
+                        if (updates * hashes * 0.8 > oldCapacity) {
+                            // increase existing capacity on 50%
+                            newCapacity = (int) (oldCapacity * 1.5);
+                            LOG.debug("Increasing BloomFilter size from {} to {}", oldCapacity, newCapacity);
+                        }
+                    }
+                    return BloomFilter.create(
+                            newCapacity, hashes,
+                            HashFunctions.withSeed(hashFn, index));
+                });
         this.resetAfter = resetAfter.toMillis();
         this.resetTime = System.currentTimeMillis();
     }
@@ -70,7 +87,9 @@ public class MultiBloomFilter<T> {
         resetTime = System.currentTimeMillis();
     }
 
-    void resetHead() {bfs.resetHead();}
+    void resetHead() {
+        bfs.resetHead();
+    }
 
     @Override
     public String toString() {

@@ -2,14 +2,14 @@ package com.khmelyuk.mbf;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CircularListTest {
 
     @Test
     public void resetHead() throws Exception {
-        CircularList<String> list = new CircularList<>(new String[5], String::valueOf);
+        CircularList<String> list = new CircularList<>(new String[5], (index, value) -> String.valueOf(index));
         assertThat(list.getHead(), is("0"));
         assertThat(list.getTail(), is("4"));
 
@@ -40,7 +40,7 @@ public class CircularListTest {
 
     @Test
     public void size() throws Exception {
-        assertThat(new CircularList<>(new String[5], String::valueOf).size(), is(5));
-        assertThat(new CircularList<>(new String[15], String::valueOf).size(), is(15));
+        assertThat(new CircularList<>(new String[5], (index, value) -> String.valueOf(index)).size(), is(5));
+        assertThat(new CircularList<>(new String[15], (index, value) -> String.valueOf(index)).size(), is(15));
     }
 }
